@@ -76,12 +76,24 @@ export default {
 };
 ```
 
-Then put these at the top of your CSS file:
+Remove all the other code inside your CSS file, then put these:
 
 ```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body,
+#root {
+	height: 100vh;
+	height: 100%;
+	height: 100svh;
+	width: 100vw;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
 ```
 
 ##### Step 1: Canvas component
@@ -201,92 +213,81 @@ createRoot(document.getElementById("root")).render(
 ```
 
 #### Change colour with `maath`
-To make the colour change smoothly we need to use ```maath``` to perform the magic.
+
+To make the colour change smoothly we need to use `maath` to perform the magic.
 
 Firstly let's import `easing` from `maath`
 
 ```jsx
-import {easing} from 'maath';
+import { easing } from "maath";
 ```
 
-In the `Box` component, we need to make some changes to useFrame to 
+In the `Box` component, we need to make some changes to useFrame to
 
 ```jsx
-    useFrame((state, delta) => {
-        meshRef.current.rotation.x += delta;
-        easing.dampC(meshRef.current.material.color, snap.colour, 0.05, delta);
-    })
+useFrame((state, delta) => {
+	meshRef.current.rotation.x += delta;
+	easing.dampC(meshRef.current.material.color, snap.colour, 0.05, delta);
+});
 ```
 
 Then, in the `return` we need to remove the `colour` in side the `<meshStandardMaterial/>`
 
 ```jsx
-    return (
-        <mesh
-            {...props}
-            ref={meshRef}
-            scale={active ? 1.5 : 1}
-            onClick={(event) => setActive(!active)}
-            onPointerOver={(event) => setHover(true)}
-            onPointerOut={(event) => setHover(false)}>
-            <boxGeometry args={[1, 1, 1]}/>
-            <meshStandardMaterial/>
-        </mesh>
-    )
+return (
+	<mesh {...props} ref={meshRef} scale={active ? 1.5 : 1} onClick={(event) => setActive(!active)} onPointerOver={(event) => setHover(true)} onPointerOut={(event) => setHover(false)}>
+		<boxGeometry args={[1, 1, 1]} />
+		<meshStandardMaterial />
+	</mesh>
+);
 ```
 
-After that your `Box` component would look like this 
+After that your `Box` component would look like this
 
 ```jsx
 function Box(props) {
-    // This reference will give us direct access to the mesh
-    const meshRef = useRef()
-    // Set up state for the hovered and active state
-    const [hovered, setHover] = useState(false)
-    const [active, setActive] = useState(false)
-    const snap = useSnapshot(store)
+	// This reference will give us direct access to the mesh
+	const meshRef = useRef();
+	// Set up state for the hovered and active state
+	const [hovered, setHover] = useState(false);
+	const [active, setActive] = useState(false);
+	const snap = useSnapshot(store);
 
-    // Subscribe this component to the render-loop, rotate the mesh every frame
-    useFrame((state, delta) => {
-        meshRef.current.rotation.x += delta;
-        easing.dampC(meshRef.current.material.color, snap.colour, 0.05, delta);
-    })
-    // Return view, these are regular three.js elements expressed in JSX
-    return (
-        <mesh
-            {...props}
-            ref={meshRef}
-            scale={active ? 1.5 : 1}
-            onClick={(event) => setActive(!active)}
-            onPointerOver={(event) => setHover(true)}
-            onPointerOut={(event) => setHover(false)}>
-            <boxGeometry args={[1, 1, 1]}/>
-            <meshStandardMaterial/>
-        </mesh>
-    )
+	// Subscribe this component to the render-loop, rotate the mesh every frame
+	useFrame((state, delta) => {
+		meshRef.current.rotation.x += delta;
+		easing.dampC(meshRef.current.material.color, snap.colour, 0.05, delta);
+	});
+	// Return view, these are regular three.js elements expressed in JSX
+	return (
+		<mesh {...props} ref={meshRef} scale={active ? 1.5 : 1} onClick={(event) => setActive(!active)} onPointerOver={(event) => setHover(true)} onPointerOut={(event) => setHover(false)}>
+			<boxGeometry args={[1, 1, 1]} />
+			<meshStandardMaterial />
+		</mesh>
+	);
 }
 ```
 
-To make it work, now head back to `BottomUI` component to add a `handleColourChange` function to listen to button clicking event. 
+To make it work, now head back to `BottomUI` component to add a `handleColourChange` function to listen to button clicking event.
 
-add 
+add
 
 ```jsx
-    const handleColourChange = (e) => {
-        switch (e.target.id) {
-            case "hotpink":
-                store.colour = "#FF69B4"
-                break;
-            case "flamered":
-                store.colour = "#AF2B1E"
-                break;
-            case "blackbrown":
-                store.colour = "#212121"
-                break;
-            default:
-                store.colour = "#FF69B4"
-        }
-    }
+const handleColourChange = (e) => {
+	switch (e.target.id) {
+		case "hotpink":
+			store.colour = "#FF69B4";
+			break;
+		case "flamered":
+			store.colour = "#AF2B1E";
+			break;
+		case "blackbrown":
+			store.colour = "#212121";
+			break;
+		default:
+			store.colour = "#FF69B4";
+	}
+};
 ```
 
 right before the `return`
@@ -301,40 +302,35 @@ Now your `BottomUI` would looked like this:
 
 ```jsx
 function BottomUI() {
-    const snap = useSnapshot(store)
-    const handleColourChange = (e) => {
-        switch (e.target.id) {
-            case "hotpink":
-                store.colour = "#FF69B4"
-                break;
-            case "flamered":
-                store.colour = "#AF2B1E"
-                break;
-            case "blackbrown":
-                store.colour = "#212121"
-                break;
-            default:
-                store.colour = "#FF69B4"
-        }
-    }
+	const snap = useSnapshot(store);
+	const handleColourChange = (e) => {
+		switch (e.target.id) {
+			case "hotpink":
+				store.colour = "#FF69B4";
+				break;
+			case "flamered":
+				store.colour = "#AF2B1E";
+				break;
+			case "blackbrown":
+				store.colour = "#212121";
+				break;
+			default:
+				store.colour = "#FF69B4";
+		}
+	};
 
-    return (<Html fullscreen>
-        <div
-            className={"h-24 w-full absolute bottom-0 left-0 flex justify-center items-center gap-x-12 border border-black"}>
-            <button id="hotpink" onClick={handleColourChange} className="size-12 bg-[#FF69B4] rounded-full"
-                    style={{scale: snap.colour === "#FF69B4" ? "1.2" : "1.0"}}></button>
-            <button id="flamered" onClick={handleColourChange} className="size-12 bg-[#AF2B1E] rounded-full"
-                    style={{scale: snap.colour === "#AF2B1E" ? "1.2" : "1.0"}}></button>
-            <button id="blackbrown" onClick={handleColourChange} className="size-12 bg-[#212121] rounded-full"
-                    style={{scale: snap.colour === "#212121" ? "1.2" : "1.0"}}></button>
-        </div>
-    </Html>)
+	return (
+		<Html fullscreen>
+			<div className={"h-24 w-full absolute bottom-0 left-0 flex justify-center items-center gap-x-12 border border-black"}>
+				<button id="hotpink" onClick={handleColourChange} className="size-12 bg-[#FF69B4] rounded-full" style={{ scale: snap.colour === "#FF69B4" ? "1.2" : "1.0" }}></button>
+				<button id="flamered" onClick={handleColourChange} className="size-12 bg-[#AF2B1E] rounded-full" style={{ scale: snap.colour === "#AF2B1E" ? "1.2" : "1.0" }}></button>
+				<button id="blackbrown" onClick={handleColourChange} className="size-12 bg-[#212121] rounded-full" style={{ scale: snap.colour === "#212121" ? "1.2" : "1.0" }}></button>
+			</div>
+		</Html>
+	);
 }
 ```
 
 There you have it! Feel free to change the value of `easing.dampC` in 3rd argument inside `Box` component to change the transition speed.
 
-
-
-
-Hope you enjoy my smooth demonstration! 
+Hope you enjoy my smooth demonstration!
